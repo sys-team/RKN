@@ -26,7 +26,7 @@ create global temporary table rkn.RawData(
 
 create global temporary table rkn.Blocked(
 
-    mask STRING,
+    mask STRING not null unique,
     startIP bigint,
     endIP bigint,
 

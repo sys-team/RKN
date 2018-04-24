@@ -1,4 +1,5 @@
 create or replace procedure rkn.refreshData(
+    @forceRefresh integer default 0,
     @url STRING default 'https://raw.githubusercontent.com/zapret-info/z-i/master/dump.csv'
 )
 begin
@@ -37,7 +38,9 @@ begin
         from rkn.File
         where updated = @updated
     )
-    and @updated is not null then
+    and @updated is not null
+    or @forceRefresh = 1
+    then
 
         insert into rkn.File on existing update with auto name
         select 1 as id,
@@ -93,8 +96,10 @@ begin
         end if;
 
         merge into rkn.Blocked t using with auto name (
-            select mask
+            select distinct
+                mask
             from #r
+            where mask is not null
         ) as d on t.mask = d.mask
         when not matched then insert
         when matched then skip;
